@@ -13,6 +13,8 @@ public class Phone {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //TODO priority for phone
+
     @Pattern(
             regexp = "^(\\+380|380|0)\\d{9}$",
             message = "Phone number must start with +380, 380, or 0 and contain 9 digits"
