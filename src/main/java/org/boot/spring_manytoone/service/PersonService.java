@@ -1,5 +1,6 @@
 package org.boot.spring_manytoone.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.boot.spring_manytoone.dto.PersonDTO;
 import org.boot.spring_manytoone.entity.Person;
 import org.boot.spring_manytoone.entity.Phone;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Service
 public class PersonService {
+
     private final PersonRepository personRepository;
 
     public PersonService(PersonRepository personRepository) {
@@ -33,5 +35,24 @@ public class PersonService {
             person.setPhonesList(phones);
         }
         personRepository.save(person);
+    }
+
+    //Todo getPerson split with findByIdWithPhone ?
+
+    public PersonDTO getPerson(Long id) {
+        return personRepository.findById(id)
+                .map(person -> new PersonDTO(
+                        person.getId(),
+                        person.getName()
+                )).orElseThrow(() -> new EntityNotFoundException("Person not found"));
+    }
+
+    public PersonDTO findByIdWithPhone(Long id) {
+        Person person = personRepository.findPersonWithPhones(id);
+        return new PersonDTO(
+                person.getId(),
+                person.getName(),
+                person.getPhonesList()
+        );
     }
 }

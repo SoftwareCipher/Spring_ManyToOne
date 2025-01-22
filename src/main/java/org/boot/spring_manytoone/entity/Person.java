@@ -2,11 +2,13 @@ package org.boot.spring_manytoone.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @Entity
 @Data
+@RequiredArgsConstructor
 @Table(name = "person")
 public class Person {
     @Id

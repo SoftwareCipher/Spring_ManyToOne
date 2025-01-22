@@ -1,5 +1,6 @@
 package org.boot.spring_manytoone.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
@@ -19,5 +20,6 @@ public class Phone {
     private String phoneNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Person person;
 }

@@ -5,10 +5,7 @@ import org.boot.spring_manytoone.dto.PersonDTO;
 import org.boot.spring_manytoone.service.PersonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.tinylog.Logger;
 
 @RestController
@@ -26,5 +23,17 @@ public class PersonController {
         Logger.info("save person: " + personDTO);
         personService.savePerson(personDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/{id}/without_phone")
+    public ResponseEntity<PersonDTO> findByIdWithoutPhone(@PathVariable Long id) {
+        Logger.info("findByIdWithoutPhone: " + id);
+        return ResponseEntity.ok(personService.getPerson(id));
+    }
+
+    @GetMapping("/{id}/with-phone")
+    public ResponseEntity<PersonDTO> findById(@PathVariable Long id) {
+        Logger.info("find person with phone by id: " + id);
+        return ResponseEntity.ok(personService.findByIdWithPhone(id));
     }
 }
