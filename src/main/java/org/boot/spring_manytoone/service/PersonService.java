@@ -1,7 +1,7 @@
 package org.boot.spring_manytoone.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.Table;
+import lombok.RequiredArgsConstructor;
 import org.boot.spring_manytoone.dto.PersonDTO;
 import org.boot.spring_manytoone.dto.PhoneDTO;
 import org.boot.spring_manytoone.entity.Person;
@@ -15,16 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PersonService {
 
     private final PersonRepository personRepository;
     private final PhoneRepository phoneRepository;
-
-    public PersonService(PersonRepository personRepository,
-                         PhoneRepository phoneRepository) {
-        this.personRepository = personRepository;
-        this.phoneRepository = phoneRepository;
-    }
 
     @Transactional
     public void savePerson(PersonDTO personDTO) {
@@ -56,25 +51,21 @@ public class PersonService {
         personRepository.save(person);
     }
 
+    // TODO select - exists - exists - insert
+    // TODO uniqueness for the phone
     @Transactional
     public void savePersonPhone(Long id, PhoneDTO phoneDTO) {
         Person person = personRepository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
 
-        boolean hasPhone = person.getPhonesList() != null
-                && !person.getPhonesList().isEmpty();
+        boolean hasPhone = phoneRepository.existsByPersonId(id);
 
         Phone phone = new Phone();
         phone.setPerson(person);
         phone.setFlag(!hasPhone);
         phone.setPhoneNumber(phoneDTO.getPhoneNumber());
 
-        if(person.getPhonesList() == null){
-            person.setPhonesList(new ArrayList<>());
-        }
-
-        person.getPhonesList().add(phone);
-        personRepository.save(person);
+        phoneRepository.save(phone);
     }
 
     public PersonDTO getPerson(Long id) {
@@ -94,6 +85,7 @@ public class PersonService {
         );
     }
 
+    // TODO add id for Person -> deletePhone(Long PersonId, Long PhoneId)
     @Transactional
     public void deletePhone(Long id) {
         Phone phone = phoneRepository.findById(id)

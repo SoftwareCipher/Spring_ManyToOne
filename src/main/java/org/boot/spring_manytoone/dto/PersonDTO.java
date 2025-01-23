@@ -2,9 +2,7 @@ package org.boot.spring_manytoone.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.boot.spring_manytoone.entity.Phone;
 
 import java.util.List;

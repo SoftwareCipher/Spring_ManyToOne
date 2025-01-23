@@ -1,7 +1,8 @@
 package org.boot.spring_manytoone.controller;
 
 import jakarta.validation.Valid;
-import org.boot.spring_manytoone.dto.PersonDTO;
+import lombok.RequiredArgsConstructor;
+import org.boot.spring_manytoone.dto.*;
 import org.boot.spring_manytoone.dto.PhoneDTO;
 import org.boot.spring_manytoone.service.PersonService;
 import org.springframework.http.HttpStatus;
@@ -11,13 +12,11 @@ import org.tinylog.Logger;
 
 @RestController
 @RequestMapping("/v1")
+@RequiredArgsConstructor
 public class PersonController {
 
-    private PersonService personService;
-
-    public PersonController(PersonService personService) {
-        this.personService = personService;
-    }
+    // TODO правильно исользовать @RequiredArgsConstructor для DI
+    private final PersonService personService;
 
     @PostMapping("/save")
     public ResponseEntity<PersonDTO> save(@Valid @RequestBody PersonDTO personDTO) {
@@ -27,7 +26,7 @@ public class PersonController {
     }
 
     @PostMapping("/{userId}/phone")
-    public ResponseEntity<String> addPhoneToUser(@PathVariable Long userId,
+    public ResponseEntity<String> savePersonPhone(@PathVariable Long userId,
                                                  @Valid @RequestBody PhoneDTO phoneDTO) {
         personService.savePersonPhone(userId, phoneDTO);
         return ResponseEntity.ok("Phone added successfully");
