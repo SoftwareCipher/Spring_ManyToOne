@@ -2,6 +2,7 @@ package org.boot.spring_manytoone.controller;
 
 import jakarta.validation.Valid;
 import org.boot.spring_manytoone.dto.PersonDTO;
+import org.boot.spring_manytoone.dto.PhoneDTO;
 import org.boot.spring_manytoone.service.PersonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,13 @@ public class PersonController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("/{userId}/phone")
+    public ResponseEntity<String> addPhoneToUser(@PathVariable Long userId,
+                                                 @Valid @RequestBody PhoneDTO phoneDTO) {
+        personService.savePersonPhone(userId, phoneDTO);
+        return ResponseEntity.ok("Phone added successfully");
+    }
+
     @GetMapping("/{id}/without_phone")
     public ResponseEntity<PersonDTO> findByIdWithoutPhone(@PathVariable Long id) {
         Logger.info("findByIdWithoutPhone: " + id);
@@ -35,5 +43,11 @@ public class PersonController {
     public ResponseEntity<PersonDTO> findById(@PathVariable Long id) {
         Logger.info("find person with phone by id: " + id);
         return ResponseEntity.ok(personService.findByIdWithPhone(id));
+    }
+
+    @DeleteMapping("/{id}/phone")
+    public void deleteById(@PathVariable Long id) {
+        Logger.info("delete person with id: " + id);
+        personService.deletePhone(id);
     }
 }

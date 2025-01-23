@@ -13,7 +13,7 @@ public class Phone {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //TODO priority for phone
+    private boolean flag;
 
     @Pattern(
             regexp = "^(\\+380|380|0)\\d{9}$",
