@@ -7,9 +7,23 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PhoneDTO {
-    @Pattern(
-            regexp = "^(\\+380|380|0)\\d{9}$",
-            message = "Phone number must start with +380, 380, or 0 and contain 9 digits"
-    )
+    private Long id;
+
+    @Pattern(regexp = "^(0)\\d{9}$", message = "Phone number must start with 0 and contain 9 digits")
     private String phoneNumber;
+
+    private Long personId;
+
+    private String newPhoneNumber;
+
+    public PhoneDTO(Long personId, String phoneNumber) {
+        this.personId = personId;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public PhoneDTO(String phoneNumber, Long personId, String newPhoneNumber) {
+        this.phoneNumber = phoneNumber;
+        this.personId = personId;
+        this.newPhoneNumber = newPhoneNumber;
+    }
 }

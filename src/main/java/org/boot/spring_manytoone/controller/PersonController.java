@@ -15,7 +15,6 @@ import org.tinylog.Logger;
 @RequiredArgsConstructor
 public class PersonController {
 
-    // TODO правильно исользовать @RequiredArgsConstructor для DI
     private final PersonService personService;
 
     @PostMapping("/save")
@@ -25,10 +24,9 @@ public class PersonController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/{userId}/phone")
-    public ResponseEntity<String> savePersonPhone(@PathVariable Long userId,
-                                                 @Valid @RequestBody PhoneDTO phoneDTO) {
-        personService.savePersonPhone(userId, phoneDTO);
+    @PatchMapping("/phone")
+    public ResponseEntity<String> savePersonPhone(@Valid @RequestBody PhoneDTO phoneDTO) {
+        personService.savePersonPhone(phoneDTO);
         return ResponseEntity.ok("Phone added successfully");
     }
 
@@ -44,9 +42,9 @@ public class PersonController {
         return ResponseEntity.ok(personService.findByIdWithPhone(id));
     }
 
-    @DeleteMapping("/{id}/phone")
-    public void deleteById(@PathVariable Long id) {
-        Logger.info("delete person with id: " + id);
-        personService.deletePhone(id);
+    @DeleteMapping("/phone")
+    public void deleteById(@RequestBody PhoneDTO phoneDTO) {
+        Logger.info("delete person with id: " + phoneDTO.getPersonId());
+        personService.deletePhone(phoneDTO);
     }
 }

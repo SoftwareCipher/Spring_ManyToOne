@@ -10,8 +10,8 @@ import org.boot.spring_manytoone.repo.PersonRepository;
 import org.boot.spring_manytoone.repo.PhoneRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tinylog.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,46 +26,47 @@ public class PersonService {
         Person person = new Person();
         person.setName(personDTO.getName());
 
-        if(personDTO.getPhones() != null) {
+        if (!phoneRepository.existsByCheckPhone(personDTO.getMainPhone())) {
+            person.setMainPhone(personDTO.getMainPhone());
+        }
+
+        if (personDTO.getPhones() != null) {
             List<Phone> phones = personDTO.getPhones().stream()
-                    .map(dto ->{
+                    .map(dto -> {
                         Phone phone = new Phone();
                         phone.setPhoneNumber(dto.getPhoneNumber());
                         phone.setPerson(person);
-                        phone.setFlag(dto.isFlag());
                         return phone;
                     }).toList();
-
-            if (phones.stream().filter(Phone::isFlag).count() > 1) {
-                throw new IllegalArgumentException("Only one phone number can be marked as primary");
-            }
-
-            boolean hasPrimary = phones.stream().anyMatch(Phone::isFlag);
-            if (!hasPrimary && !phones.isEmpty()) {
-                phones.get(0).setFlag(true);
-            }
-
             person.setPhonesList(phones);
         }
-
         personRepository.save(person);
     }
 
-    // TODO select - exists - exists - insert
-    // TODO uniqueness for the phone
+    private Phone checkPhoneAndPerson(PhoneDTO phoneDTO) {
+        Phone phone = phoneRepository.findByPhoneNumber(phoneDTO.getPhoneNumber())
+                .orElseThrow(() -> new EntityNotFoundException("Phone with number "
+                        + phoneDTO.getPhoneNumber() + " not found"));
+
+        Logger.info("Found phone: " + phone.getPhoneNumber() + ", Person ID: " + phone.getPerson().getId());
+
+        if (!phone.getPerson().getId().equals(phoneDTO.getPersonId())) {
+            throw new SecurityException("Phone does not belong to the specified person. Found Person ID: "
+                    + phone.getPerson().getId() + ", Provided Person ID: " + phoneDTO.getPersonId());
+        }
+
+        return phone;
+    }
+
     @Transactional
-    public void savePersonPhone(Long id, PhoneDTO phoneDTO) {
-        Person person = personRepository.findById(id)
-                .orElseThrow(EntityNotFoundException::new);
+    public void savePersonPhone(PhoneDTO phoneDTO) {
+        Phone phone = checkPhoneAndPerson(phoneDTO);
 
-        boolean hasPhone = phoneRepository.existsByPersonId(id);
-
-        Phone phone = new Phone();
-        phone.setPerson(person);
-        phone.setFlag(!hasPhone);
-        phone.setPhoneNumber(phoneDTO.getPhoneNumber());
-
+        phone.setPhoneNumber(phoneDTO.getNewPhoneNumber());
         phoneRepository.save(phone);
+
+        Logger.info("Phone with ID " + phoneDTO.getId() +
+                " updated to new number: " + phoneDTO.getNewPhoneNumber());
     }
 
     public PersonDTO getPerson(Long id) {
@@ -81,20 +82,16 @@ public class PersonService {
         return new PersonDTO(
                 person.getId(),
                 person.getName(),
+                person.getMainPhone(),
                 person.getPhonesList()
         );
     }
 
-    // TODO add id for Person -> deletePhone(Long PersonId, Long PhoneId)
     @Transactional
-    public void deletePhone(Long id) {
-        Phone phone = phoneRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Phone not found"));
+    public void deletePhone(PhoneDTO phoneDTO) {
+        Phone phone = checkPhoneAndPerson(phoneDTO);
 
-        if (phone.isFlag()) {
-            throw new IllegalStateException("Cannot delete the primary phone number");
-        }
-
+        Logger.info("Deleting phone: " + phone.getPhoneNumber());
         phoneRepository.delete(phone);
     }
 }

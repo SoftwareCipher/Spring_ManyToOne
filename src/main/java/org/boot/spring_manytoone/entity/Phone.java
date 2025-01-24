@@ -13,12 +13,8 @@ public class Phone {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private boolean flag;
-
-    @Pattern(
-            regexp = "^(\\+380|380|0)\\d{9}$",
-            message = "Phone number must start with +380, 380, or 0 and contain 9 digits"
-    )
+    @Pattern(regexp = "^(0)\\d{9}$",
+            message = "Phone number must start with +380, 380, or 0 and contain 9 digits")
     private String phoneNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
