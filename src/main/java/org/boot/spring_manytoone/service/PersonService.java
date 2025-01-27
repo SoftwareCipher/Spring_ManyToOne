@@ -6,6 +6,7 @@ import org.boot.spring_manytoone.dto.PersonDTO;
 import org.boot.spring_manytoone.dto.PhoneDTO;
 import org.boot.spring_manytoone.entity.Person;
 import org.boot.spring_manytoone.entity.Phone;
+import org.boot.spring_manytoone.exceptions.PhoneException;
 import org.boot.spring_manytoone.repo.PersonRepository;
 import org.boot.spring_manytoone.repo.PhoneRepository;
 import org.springframework.stereotype.Service;
@@ -43,29 +44,26 @@ public class PersonService {
         personRepository.save(person);
     }
 
-    private Phone checkPhoneAndPerson(PhoneDTO phoneDTO) {
+    private Phone checkPhoneAndPerson(PhoneDTO phoneDTO) throws PhoneException {
         Phone phone = phoneRepository.findByPhoneNumber(phoneDTO.getPhoneNumber())
                 .orElseThrow(() -> new EntityNotFoundException("Phone with number "
                         + phoneDTO.getPhoneNumber() + " not found"));
-
         Logger.info("Found phone: " + phone.getPhoneNumber() + ", Person ID: " + phone.getPerson().getId());
-
         if (!phone.getPerson().getId().equals(phoneDTO.getPersonId())) {
-            throw new SecurityException("Phone does not belong to the specified person. Found Person ID: "
+            throw new PhoneException("Phone does not belong to the specified person. Found Person ID: "
                     + phone.getPerson().getId() + ", Provided Person ID: " + phoneDTO.getPersonId());
         }
-
         return phone;
     }
 
     @Transactional
-    public void savePersonPhone(PhoneDTO phoneDTO) {
+    public void savePersonPhone(PhoneDTO phoneDTO) throws PhoneException {
         Phone phone = checkPhoneAndPerson(phoneDTO);
 
         phone.setPhoneNumber(phoneDTO.getNewPhoneNumber());
         phoneRepository.save(phone);
 
-        Logger.info("Phone with ID " + phoneDTO.getId() +
+        Logger.info("Old number " + phoneDTO.getPhoneNumber() +
                 " updated to new number: " + phoneDTO.getNewPhoneNumber());
     }
 
@@ -88,7 +86,7 @@ public class PersonService {
     }
 
     @Transactional
-    public void deletePhone(PhoneDTO phoneDTO) {
+    public void deletePhone(PhoneDTO phoneDTO) throws PhoneException {
         Phone phone = checkPhoneAndPerson(phoneDTO);
 
         Logger.info("Deleting phone: " + phone.getPhoneNumber());

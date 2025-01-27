@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.boot.spring_manytoone.dto.*;
 import org.boot.spring_manytoone.dto.PhoneDTO;
+import org.boot.spring_manytoone.exceptions.PhoneException;
 import org.boot.spring_manytoone.service.PersonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,8 @@ public class PersonController {
     }
 
     @PatchMapping("/phone")
-    public ResponseEntity<String> savePersonPhone(@Valid @RequestBody PhoneDTO phoneDTO) {
+    public ResponseEntity<String> savePersonPhone(@Valid @RequestBody PhoneDTO phoneDTO)
+            throws PhoneException {
         personService.savePersonPhone(phoneDTO);
         return ResponseEntity.ok("Phone added successfully");
     }
@@ -43,7 +45,7 @@ public class PersonController {
     }
 
     @DeleteMapping("/phone")
-    public void deleteById(@RequestBody PhoneDTO phoneDTO) {
+    public void deleteById(@RequestBody PhoneDTO phoneDTO) throws PhoneException {
         Logger.info("delete person with id: " + phoneDTO.getPersonId());
         personService.deletePhone(phoneDTO);
     }
